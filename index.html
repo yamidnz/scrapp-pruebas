@@ -2304,7 +2304,7 @@ function getSession(){ try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY
 function setSession(s){ sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
 
 async function apiCall(action, extra){
-  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('https://script.google.com/macros/s/AKfycbwRWmuiRD1G1a2YuqDvy4KBCaBtyk13srFwAFf6oWBT90y7AJAocUo6iZ_5BjIylYDr/exec') === 0){
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PEGA_AQUI') === 0){
     throw new Error('Falta pegar la URL del Apps Script en APPS_SCRIPT_URL (ver instrucciones).');
   }
   if(APPS_SCRIPT_URL === PROD_URL_BLOQUEADA){

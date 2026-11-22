@@ -2795,7 +2795,8 @@ async function renderSubcategorias(){
       '<td style="padding:6px 8px;">' + esc(r.nombre) + (mapped ? ' <span style="font-size:10px;color:var(--muted);">(unificada)</span>' : '') + '</td>' +
       '<td style="padding:6px 8px;font-family:IBM Plex Mono,monospace;text-align:right;">' + r.veces + '</td>' +
       '<td style="padding:4px 8px;"><input type="text" list="'+dlId+'" id="subcatIn_'+i+'" value="'+esc(r.estandar || r.nombre)+'" autocomplete="off" style="width:280px;padding:6px;font-size:12.5px;text-transform:uppercase;" /></td>' +
-      '<td style="padding:4px 8px;"><button class="btn subcatApplyBtn" data-i="'+i+'" style="padding:4px 10px;font-size:11px;background:var(--track);color:var(--ink);">Aplicar</button></td>' +
+      '<td style="padding:4px 8px;"><button class="btn subcatApplyBtn" data-i="'+i+'" style="padding:4px 10px;font-size:11px;background:var(--track);color:var(--ink);margin-right:4px;">Aplicar</button>' +
+        '<button class="btn subcatDelBtn" data-i="'+i+'" style="padding:4px 10px;font-size:11px;background:#B84A3E22;color:var(--red);">Eliminar</button></td>' +
     '</tr>';
   }).join('');
   box.innerHTML = '<datalist id="'+dlId+'">'+opts+'</datalist>' +
@@ -2803,6 +2804,7 @@ async function renderSubcategorias(){
     '<thead><tr style="color:var(--muted);text-transform:uppercase;font-size:10.5px;letter-spacing:.04em;">' +
     '<th style="text-align:left;padding:6px 8px;">Escrito por operarios</th><th style="text-align:right;padding:6px 8px;">Veces</th>' +
     '<th style="text-align:left;padding:6px 8px;">Nombre estándar</th><th></th></tr></thead><tbody>' + body + '</tbody></table>';
+  wireSubcatDelete(box, rows, cat);
   box.querySelectorAll('.subcatApplyBtn').forEach(btn => btn.addEventListener('click', async () => {
     const r = rows[Number(btn.dataset.i)];
     const nuevo = cleanSub(document.getElementById('subcatIn_' + btn.dataset.i).value);
@@ -2818,6 +2820,17 @@ async function renderSubcategorias(){
   }));
 }
 subcatFiltro.addEventListener('change', renderSubcategorias);
+function wireSubcatDelete(box, rows, cat){
+  box.querySelectorAll('.subcatDelBtn').forEach(btn => btn.addEventListener('click', async () => {
+    const r = rows[Number(btn.dataset.i)];
+    if(!confirm('En ' + cat + ': eliminar "' + r.nombre + '" de la lista.\nLos registros ya guardados no se modifican. ¿Continuar?')) return;
+    try{
+      const res = await apiCall('eliminarSubcategoria', { categoria: cat, nombre: r.nombre });
+      alert('Eliminada.' + (res.enRegistros ? ' Ojo: ' + res.enRegistros + ' registro(s) guardados la usan todavía (no se tocaron).' : ''));
+      renderSubcategorias();
+    }catch(e){ alert(e.message); }
+  }));
+}
 subcatAddBtn.addEventListener('click', async () => {
   const nombre = cleanSub(subcatNewName.value);
   if(!nombre){ subcatAddStatus.textContent = 'Escribe el nombre.'; subcatAddStatus.className = 'status error'; return; }
